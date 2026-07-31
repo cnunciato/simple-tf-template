@@ -28,6 +28,7 @@ module "my_bucket" {
     Environment = "dev"
     ManagedBy   = "terraform"
     SomeKey     = "some-value"
+    Awesome     = "true"
   }
 }
 
