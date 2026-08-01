@@ -1,6 +1,5 @@
 .claude
 .terraform
 .terraform.*
-terraform*.*
-
+terraform.*
 upload-module/upload-module
