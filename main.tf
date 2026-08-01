@@ -1,6 +1,6 @@
 terraform {
   backend "remote" {
-    hostname     = "api.pulumi.com"
+    hostname     = "tf.pulumi.com"
     organization = "cnunciato"
 
     workspaces {
@@ -20,8 +20,12 @@ provider "aws" {
   region = "us-west-2"
 }
 
-module "my_bucket" {
-  source      = "./modules/s3-bucket"
+
+
+module "s3-bucket" {
+  source  = "tf.pulumi.com/veridian/s3-bucket/aws"
+  version = "0.1.5"
+
   bucket_name = "my-infra-example-bucket"
 
   tags = {
@@ -33,5 +37,5 @@ module "my_bucket" {
 }
 
 output "bucket_arn" {
-  value = module.my_bucket.bucket_arn
+  value = module.s3-bucket.bucket_arn
 }

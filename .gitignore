@@ -1,2 +1,7 @@
-terraform*
-.terraform*
+.claude
+.terraform
+.terraform.*
+terraform*.*
+
+upload-module/go.*
+upload-module/upload-module

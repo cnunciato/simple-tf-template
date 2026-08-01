@@ -1,10 +1,10 @@
 variable "bucket_name" {
-  description = "Name of the S3 bucket to create."
+  description = "The name of the bucket."
   type        = string
 }
 
 variable "tags" {
-  description = "Tags to apply to the bucket."
+  description = "The tags to apply to the bucket."
   type        = map(string)
   default     = {}
 }
