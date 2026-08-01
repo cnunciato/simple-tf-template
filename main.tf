@@ -1,11 +1,11 @@
 terraform {
-  # backend "remote" {
-  #   hostname     = "tf.pulumi.com"
-  #   organization = "cnunciato"  #
-  #   workspaces {
-  #     name = "my-infra_dev"
-  #   }
-  # }
+  backend "remote" {
+    hostname     = "tf.pulumi.com"
+    organization = "cnunciato"  #
+    workspaces {
+      name = "my-tf-project_dev"
+    }
+  }
 
   required_providers {
     aws = {
