@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	tfe "github.com/hashicorp/go-tfe"
 )
@@ -16,13 +17,18 @@ func main() {
 	name := flag.String("name", "s3-bucket", "module name")
 	provider := flag.String("provider", "aws", "provider name")
 	version := flag.String("version", "0.1.0", "module version (semver)")
-	src := flag.String("path", "./modules/s3-bucket", "path to the module directory")
+	src := flag.String("path", "./modules/s3-bucket", "path to the module directory, relative to the repository root")
 	flag.Parse()
 
 	if *org == "" {
 		fmt.Fprintln(os.Stderr, "error: -org is required")
 		flag.Usage()
 		os.Exit(2)
+	}
+
+	modulePath, err := resolvePath(*src)
+	if err != nil {
+		log.Fatalf("resolve path: %v", err)
 	}
 
 	client, err := tfe.NewClient(&tfe.Config{
@@ -64,9 +70,43 @@ func main() {
 		log.Fatalf("create version: %v", err)
 	}
 
-	if err := client.RegistryModules.Upload(ctx, *rmv, *src); err != nil {
+	if err := client.RegistryModules.Upload(ctx, *rmv, modulePath); err != nil {
 		log.Fatalf("upload module: %v", err)
 	}
 
 	fmt.Printf("uploaded %s/%s/%s@%s\n", *org, *name, *provider, *version)
+}
+
+// resolvePath resolves a module path against the repository root so that
+// relative paths (e.g. ./modules/s3-bucket) work no matter which directory
+// `go -C` runs the program in. Absolute paths are returned unchanged.
+func resolvePath(p string) (string, error) {
+	if filepath.IsAbs(p) {
+		return p, nil
+	}
+	root, err := repoRoot()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(root, p), nil
+}
+
+// repoRoot walks up from the current working directory looking for the
+// repository root, identified by a .git entry (a directory in a normal repo,
+// or a file in a worktree).
+func repoRoot() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, ".git")); err == nil {
+			return dir, nil
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", errors.New("could not locate repository root (no .git found)")
+		}
+		dir = parent
+	}
 }
