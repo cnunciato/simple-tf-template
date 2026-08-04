@@ -1,5 +1,5 @@
 variable "bucket_name" {
-  description = "The name of the bucket."
+  description = "Base name for the bucket. A random suffix is appended to keep the name globally unique."
   type        = string
 }
 
