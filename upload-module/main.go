@@ -8,22 +8,40 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	tfe "github.com/hashicorp/go-tfe"
 )
 
 func main() {
 	org := flag.String("org", "", "organization name (required)")
-	name := flag.String("name", "s3-bucket", "module name")
-	provider := flag.String("provider", "aws", "provider name")
-	version := flag.String("version", "0.1.0", "module version (semver)")
-	src := flag.String("path", "./modules/s3-bucket", "path to the module directory, relative to the repository root")
+	name := flag.String("name", "", "module name (defaults to the module directory name)")
+	provider := flag.String("provider", "", "provider name (required)")
+	version := flag.String("version", "", "module version, semver (required)")
+	src := flag.String("path", "", "path to the module directory, relative to the repository root (required)")
 	flag.Parse()
 
+	var missing []string
 	if *org == "" {
-		fmt.Fprintln(os.Stderr, "error: -org is required")
+		missing = append(missing, "-org")
+	}
+	if *provider == "" {
+		missing = append(missing, "-provider")
+	}
+	if *version == "" {
+		missing = append(missing, "-version")
+	}
+	if *src == "" {
+		missing = append(missing, "-path")
+	}
+	if len(missing) > 0 {
+		fmt.Fprintf(os.Stderr, "error: missing required flag(s): %s\n", strings.Join(missing, ", "))
 		flag.Usage()
 		os.Exit(2)
+	}
+
+	if *name == "" {
+		*name = filepath.Base(*src)
 	}
 
 	modulePath, err := resolvePath(*src)
