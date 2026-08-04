@@ -1,12 +1,4 @@
 terraform {
-  backend "remote" {
-    hostname     = "tf.pulumi.com"
-    organization = "cnunciato"  #
-    workspaces {
-      name = "my-tf-project_dev"
-    }
-  }
-
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -19,10 +11,8 @@ provider "aws" {
 }
 
 module "s3-bucket" {
-  # source  = "tf.pulumi.com/veridian/s3-bucket/aws"
-  # version = "0.1.5"
   source = "./modules/s3-bucket"
-  bucket_name = "my-infra-example-bucket"
+  bucket_name = "my-tf-project-bucket"
 
   tags = {
     Environment = "dev"
