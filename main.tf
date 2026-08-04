@@ -19,6 +19,10 @@ module "s3-bucket" {
   }
 }
 
+output "bucket_name" {
+  value = module.s3-bucket.bucket_name
+}
+
 output "bucket_arn" {
   value = module.s3-bucket.bucket_arn
 }
